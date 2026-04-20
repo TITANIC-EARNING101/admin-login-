@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TITANIC ADMIN - Working Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TITANIC EARNING PLATFORM OFFICIAL </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Firebase SDKs -->
@@ -11,141 +12,175 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
+        /* DARK THEME ACCORDING TO YOUR SCREENSHOTS */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f4f7f9; color: #333; padding-bottom: 70px; }
+        body { background-color: #1a202c; color: #e2e8f0; padding-bottom: 50px; }
 
-        /* Login */
-        #admin-login-view { height: 100vh; display: flex; justify-content: center; align-items: center; background: #1a252f; padding: 20px; position: fixed; width: 100%; z-index: 9999; top:0; left:0; }
-        .login-box { background: white; padding: 30px 20px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        /* HEADER */
+        .admin-header { 
+            background: #e74c3c; color: white; padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin: 15px; border-radius: 12px; font-weight: bold; font-size: 20px;
+        }
+        .back-btn { 
+            background: #2d3748; color: white; border: none; padding: 6px 15px; 
+            border-radius: 6px; cursor: pointer; font-size: 14px; 
+        }
 
-        /* Header */
-        header { background: #1a252f; color: white; padding: 15px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
-        header h1 { font-size: 18px; color: #ff5722; cursor: pointer; }
+        .container { padding: 0 15px; max-width: 600px; margin: 0 auto; }
 
-        /* Section Toggle */
-        .admin-section { display: none; padding: 10px; animation: fadeIn 0.3s ease; }
-        .admin-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* CARD STYLE */
+        .admin-card { 
+            background: #2d3748; padding: 15px; border-radius: 10px; 
+            margin-bottom: 20px; border-left: 4px solid #3498db; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .admin-card h3 { font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        
+        /* SPECIFIC BORDER COLORS FROM SCREENSHOTS */
+        .border-blue { border-left-color: #3498db; }
+        .border-purple { border-left-color: #9b59b6; }
+        .border-red { border-left-color: #e74c3c; }
+        .border-green { border-left-color: #2ecc71; }
+        .border-orange { border-left-color: #f39c12; }
 
-        /* Cards */
-        .data-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #eee; }
-        .u-info { font-size: 13px; color: #555; margin-bottom: 5px; display: flex; justify-content: space-between; border-bottom: 1px solid #f9f9f9; padding-bottom: 2px; }
-        .u-info b { color: #2c3e50; }
+        /* FORM CONTROLS */
+        .auth-label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 5px; font-weight: bold; }
+        .form-control { 
+            width: 100%; padding: 12px; border: 1px solid #4a5568; border-radius: 8px; 
+            background: #1a202c; color: white; outline: none; margin-bottom: 12px; font-size: 14px;
+        }
+        textarea.form-control { resize: none; }
 
-        /* Buttons */
-        .btn { padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; width: 100%; margin-top: 8px; color: white; }
+        /* WARNING BOX FOR EARNING STATUS */
+        .warning-box { 
+            background: rgba(184, 134, 11, 0.2); border: 1px solid #b8860b; 
+            padding: 10px; border-radius: 8px; margin-bottom: 15px; 
+        }
+
+        /* BUTTONS */
+        .btn-action { 
+            width: 100%; padding: 12px; border: none; border-radius: 8px; 
+            color: white; font-weight: bold; cursor: pointer; margin-bottom: 5px;
+        }
+        .btn-blue { background: #3498db; }
+        .btn-purple { background: #9b59b6; }
         .btn-green { background: #2ecc71; }
         .btn-red { background: #e74c3c; }
-        .btn-blue { background: #3498db; }
-        .btn-black { background: #2c3e50; }
 
-        /* Navigation */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #eee; z-index: 1000; }
-        .nav-item { text-align: center; color: #7f8c8d; flex: 1; font-size: 10px; }
-        .nav-item i { font-size: 22px; margin-bottom: 2px; }
-        .nav-item.active { color: #3498db; }
+        /* USER DETAIL BOX (SCREENSHOT STYLE) */
+        .user-detail-box { 
+            background: #1e293b; padding: 15px; border-radius: 10px; 
+            border: 1px solid #334155; margin-bottom: 15px; 
+        }
+        .user-header { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 10px; }
+        .ceo-badge { background: #e74c3c; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .user-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+        .text-green { color: #2ecc71; font-weight: bold; }
 
-        /* Inputs */
-        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; outline: none; }
-        label { font-size: 11px; font-weight: bold; color: #666; display: block; margin-bottom: 4px; }
+        /* LOGIN OVERLAY */
+        #login-screen {
+            position: fixed; top:0; left:0; width:100%; height:100%; background:#1a202c;
+            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        }
     </style>
 </head>
 <body>
 
-    <!-- LOGIN SCREEN -->
-    <div id="admin-login-view">
-        <div class="login-box">
-            <h2 style="color:#ff5722; margin-bottom:20px;">TITANIC ADMIN</h2>
-            <input type="email" id="inputEmail" class="form-control" placeholder="Email Address">
-            <input type="password" id="inputPass" class="form-control" placeholder="Password">
-            <button onclick="checkAdminLogin()" class="btn btn-blue" style="font-size:16px;">LOGIN NOW</button>
-            <p id="error-msg" style="color:red; margin-top:10px; display:none; font-size:12px;"></p>
+    <!-- PASSWORD PROTECTION -->
+    <div id="login-screen">
+        <div style="background:#2d3748; padding:30px; border-radius:15px; width:90%; max-width:350px; text-align:center;">
+            <h2 style="color:#e74c3c; margin-bottom:20px;">TITANIC ADMIN</h2>
+            <input type="password" id="admin-pass" class="form-control" placeholder="Company Password">
+            <button class="btn-action btn-red" onclick="checkAuth()">Access Dashboard</button>
         </div>
     </div>
 
-    <!-- MAIN APP VIEW -->
-    <div id="admin-main-view" style="display: none;">
-        <header>
-            <h1 onclick="secretAdminInfo()">TITANIC <i class="fas fa-ship"></i></h1>
-            <div onclick="location.reload()" style="font-size: 12px; color: #ffc107; font-weight: bold; cursor: pointer;">EXIT</div>
-        </header>
+    <div id="main-content" style="display:none;">
+        <div class="admin-header">
+            <span><i class="fas fa-users-cog"></i> TITANIC Dashboard</span>
+            <button class="back-btn" onclick="location.reload()">Back</button>
+        </div>
 
-        <!-- DASHBOARD (HOME) -->
-        <div id="section-home" class="admin-section active">
-            <h2 style="padding:10px;">Dashboard Overview</h2>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px;">
-                <div class="data-card" style="text-align:center;"><p style="font-size:10px; color:#7f8c8d;">TOTAL USERS</p><h3 id="stat-users">0</h3></div>
-                <div class="data-card" style="text-align:center;"><p style="font-size:10px; color:#7f8c8d;">PENDING PLANS</p><h3 id="stat-plans">0</h3></div>
-                <div class="data-card" style="text-align:center;"><p style="font-size:10px; color:#7f8c8d;">PENDING WITH</p><h3 id="stat-withdraws">0</h3></div>
-                <div class="data-card" style="text-align:center;"><p style="font-size:10px; color:#7f8c8d;">TOTAL PAID</p><h3 id="stat-paid">0</h3></div>
-            </div>
-            <div style="padding:10px;">
-                <div class="data-card">
-                    <label>Earning Status</label>
-                    <select id="quick-stop" class="form-control" onchange="updateEarningStatus(this.value)">
-                        <option value="false">ACTIVE</option>
-                        <option value="true">STOPPED</option>
+        <div class="container">
+            <!-- SYSTEM SETTINGS -->
+            <div class="admin-card border-blue">
+                <h3><i class="fas fa-cog"></i> System Settings</h3>
+                <div class="warning-box">
+                    <label class="auth-label" style="color:#f39c12;">Global Earning Status</label>
+                    <select id="set-stop-earnings" class="form-control">
+                        <option value="false">Earnings ON (Normal Mode)</option>
+                        <option value="true">Earnings STOPPED</option>
                     </select>
+                    <label class="auth-label">Reason for Stopping</label>
+                    <input type="text" id="set-stop-reason" class="form-control" placeholder="Today market off">
                 </div>
+                <label class="auth-label">Popup Notification Text</label>
+                <textarea id="set-notif" class="form-control" rows="4"></textarea>
+                <label class="auth-label">Payment Receiver Name</label>
+                <input type="text" id="set-bank-name" class="form-control">
+                <label class="auth-label">Payment IBAN / Account Number</label>
+                <input type="text" id="set-bank-iban" class="form-control">
+                <button class="btn-action btn-blue" onclick="saveSettings()">Update Settings</button>
             </div>
-        </div>
 
-        <!-- USERS TAB (SARI DETAILS MAGAR NO PASSWORD) -->
-        <div id="section-users" class="admin-section">
-            <div style="padding:10px;"><input type="text" id="uSearch" placeholder="Search name or email..." class="form-control" onkeyup="filterUsers()"></div>
-            <div id="list-all-users" style="padding:5px;"></div>
-        </div>
-
-        <!-- APPROVALS TAB -->
-        <div id="section-approve" class="admin-section">
-            <h2 style="padding:10px; font-size:16px;">Plan Requests</h2>
-            <div id="list-pending-plans"></div>
-            <h2 style="padding:10px; font-size:16px;">Renewal Requests</h2>
-            <div id="list-pending-renewals"></div>
-        </div>
-
-        <!-- MONEY TAB -->
-        <div id="section-money" class="admin-section">
-            <h2 style="padding:10px; font-size:16px;">Withdraw Requests</h2>
-            <div id="list-pending-withdraws"></div>
-        </div>
-
-        <!-- CONFIG TAB -->
-        <div id="section-config" class="admin-section">
-            <h2 style="padding:10px; font-size:16px;">Settings</h2>
-            <div class="data-card">
-                <label>Notification Bar Text</label>
-                <textarea id="conf-notif" class="form-control" rows="2"></textarea>
-                <label>System IBAN (Receiver)</label>
-                <input type="text" id="conf-iban" class="form-control">
-                <button onclick="saveAdminSettings()" class="btn btn-blue">SAVE SETTINGS</button>
+            <!-- CUSTOM TOOLS -->
+            <div class="admin-card border-blue">
+                <h3><i class="fas fa-wrench"></i> Create Custom Tool / Link</h3>
+                <label class="auth-label">Tool Name</label>
+                <input type="text" id="tool-name" class="form-control">
+                <label class="auth-label">Icon Class</label>
+                <input type="text" id="tool-icon" class="form-control" value="fas fa-star">
+                <label class="auth-label">Tool URL</label>
+                <input type="text" id="tool-link" class="form-control">
+                <button class="btn-action btn-blue" onclick="addTool()">Add Tool</button>
             </div>
-            <h2 style="padding:10px; font-size:16px;">Promo/Secret Tool</h2>
-            <div class="data-card">
-                <input type="text" id="tool-name" class="form-control" placeholder="Name">
-                <input type="text" id="tool-val" class="form-control" placeholder="Value / Secret Code">
-                <button onclick="executeAdminTool()" class="btn btn-green">EXECUTE</button>
+
+            <!-- CREATE PLAN -->
+            <div class="admin-card border-purple">
+                <h3><i class="fas fa-layer-group"></i> Create New Plan</h3>
+                <label class="auth-label">Plan Name</label>
+                <input type="text" id="plan-name" class="form-control">
+                <label class="auth-label">Plan Price (Rs)</label>
+                <input type="number" id="plan-price" class="form-control">
+                <label class="auth-label">Daily Videos</label>
+                <input type="number" id="plan-vids" class="form-control">
+                <label class="auth-label">Reward Per Ad</label>
+                <input type="number" id="plan-reward" class="form-control">
+                <button class="btn-action btn-purple" onclick="addPlan()">Add Plan</button>
             </div>
-        </div>
 
-        <!-- SECRET ACCOUNT DESTROYER (WITH PASSWORD) -->
-        <div id="section-destroyer" class="admin-section">
-            <h2 style="padding:10px; font-size:18px; color:red;">Account Destroyer (Secret Access)</h2>
-            <div id="list-destroyer-users" style="padding:5px;"></div>
-        </div>
+            <!-- MANAGE PLANS -->
+            <div class="admin-card border-red">
+                <h3 style="color:#e74c3c;"><i class="fas fa-trash"></i> Manage / On-Off Plans</h3>
+                <div id="plans-list"></div>
+            </div>
 
-        <!-- BOTTOM NAVIGATION -->
-        <div class="bottom-nav">
-            <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-home"></i><p>Home</p></div>
-            <div class="nav-item" onclick="switchTab('users', this)"><i class="fas fa-users"></i><p>Users</p></div>
-            <div class="nav-item" onclick="switchTab('approve', this)"><i class="fas fa-check-circle"></i><p>Approve</p></div>
-            <div class="nav-item" onclick="switchTab('money', this)"><i class="fas fa-wallet"></i><p>Money</p></div>
-            <div class="nav-item" onclick="switchTab('config', this)"><i class="fas fa-cog"></i><p>Config</p></div>
+            <!-- PROMO CODES -->
+            <div class="admin-card border-blue">
+                <h3>Create & Manage Promo Codes</h3>
+                <input type="text" id="promo-code" class="form-control" placeholder="CODE">
+                <input type="number" id="promo-amt" class="form-control" placeholder="Amount">
+                <button class="btn-action btn-green" onclick="addPromo()">Create Promo</button>
+                <div id="promos-list" style="margin-top:10px;"></div>
+            </div>
+
+            <!-- PENDING SECTIONS -->
+            <div class="admin-card border-blue"><h3>Pending Plan Approvals</h3><div id="pending-plans"></div></div>
+            <div class="admin-card border-green"><h3>Pending Renewals</h3><div id="pending-renewals"></div></div>
+            <div class="admin-card border-orange"><h3>Pending Withdrawals</h3><div id="pending-withdrawals"></div></div>
+            <div class="admin-card border-purple"><h3>User Complaints</h3><div id="pending-complaints"></div></div>
+
+            <!-- USER ACCOUNTS -->
+            <div class="admin-card border-blue">
+                <h3>All User Accounts (Detailed)</h3>
+                <div id="users-list"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // FIREBASE SETUP
+        // CONFIGURATION (Same as yours)
         const firebaseConfig = {
             apiKey: "AIzaSyAUrAjlAnF5o86YYZn911dNg0Hkbgp3Pnc",
             authDomain: "titanic-earning.firebaseapp.com",
@@ -158,201 +193,150 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // MASTER CREDENTIALS
-        const MASTER_EMAIL = "talhaidrees745@gmail.com";
-        const MASTER_PASS = "732419";
-        const SECRET_CODE = "732419";
-
-        let usersData = {};
-        let plansData = {};
-        let clickTimer = 0;
-
-        // LOGIN SYSTEM
-        function checkAdminLogin() {
-            let userE = document.getElementById('inputEmail').value.trim();
-            let userP = document.getElementById('inputPass').value.trim();
-
-            if(userE === MASTER_EMAIL && userP === MASTER_PASS) {
-                document.getElementById('admin-login-view').style.display = 'none';
-                document.getElementById('admin-main-view').style.display = 'block';
+        function checkAuth() {
+            if(document.getElementById('admin-pass').value === "Ta.732419") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
                 loadAdminData();
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-                document.getElementById('error-msg').innerText = "Wrong Email or Password!";
-            }
-        }
-
-        function switchTab(id, btn) {
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('section-' + id).classList.add('active');
-            btn.classList.add('active');
-            window.scrollTo(0,0);
+            } else { alert("Wrong Password!"); }
         }
 
         function loadAdminData() {
-            db.ref('plans').on('value', snap => { plansData = snap.val() || {}; });
-            db.ref('users').on('value', snap => {
-                usersData = snap.val() || {};
-                renderHome();
-                renderUsers();
-                renderApprovals();
-                renderDestroyer();
-            });
-            db.ref('withdrawals').on('value', snap => { renderMoney(snap.val()); });
+            // Settings
             db.ref('settings').on('value', snap => {
                 let s = snap.val() || {};
-                document.getElementById('conf-notif').value = s.notification_text || '';
-                document.getElementById('conf-iban').value = s.admin_iban || '';
-                document.getElementById('quick-stop').value = s.stop_earnings ? "true" : "false";
+                document.getElementById('set-stop-earnings').value = s.stop_earnings || "false";
+                document.getElementById('set-stop-reason').value = s.stop_reason || "";
+                document.getElementById('set-notif').value = s.notification_text || "";
+                document.getElementById('set-bank-name').value = s.admin_name || "";
+                document.getElementById('set-bank-iban').value = s.admin_iban || "";
+            });
+
+            // Plans
+            db.ref('plans').on('value', snap => {
+                let html = "";
+                snap.forEach(ch => {
+                    let p = ch.val();
+                    html += `<div style="background:#1a202c; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span><b>${p.name}</b> <span style="color:${p.status==='off'?'#e74c3c':'#2ecc71'}">(${p.status==='off'?'OFF':'ON'})</span><br><small>Rs. ${p.price}</small></span>
+                        <div>
+                            <button onclick="togglePlan('${ch.key}', '${p.status}')" style="background:#2ecc71; border:none; padding:5px 10px; color:white; border-radius:4px; cursor:pointer;">${p.status==='off'?'Turn ON':'Turn OFF'}</button>
+                            <button onclick="deletePlan('${ch.key}')" style="background:#e74c3c; border:none; padding:5px 10px; color:white; border-radius:4px; cursor:pointer;">Delete</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('plans-list').innerHTML = html;
+            });
+
+            // Users (SCREENSHOT STYLE)
+            db.ref('users').on('value', snap => {
+                let html = "";
+                snap.forEach(ch => {
+                    let u = ch.val();
+                    let key = ch.key;
+                    let isCEO = u.role === 'admin';
+                    
+                    html += `
+                    <div class="user-detail-box">
+                        <div class="user-header">
+                            <b style="font-size:16px;">${u.name}</b> ${isCEO ? '<span class="ceo-badge">CEO</span>' : ''}<br>
+                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-envelope"></i> ${u.email}</span><br>
+                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-key"></i> ${u.password}</span><br>
+                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-link"></i> Invite Code: <b>${u.invite_code}</b></span><br>
+                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-phone"></i> Phone: <b>${u.phone || 'Not Bound'}</b></span>
+                        </div>
+                        <div class="user-row"><span>Bal: <span class="text-green">Rs.${u.balance}</span></span> <span>Plan: <b>${u.plan_id || 'None'}</b></span></div>
+                        <div class="user-row"><span style="color:#f39c12;">Expiry: Active</span> <span>Total Bought: 0</span></div>
+                        <div class="user-row"><span>Invites: ${u.invites || 0}</span> <span>Videos: ${u.videos_watched || 0}</span></div>
+                        
+                        <div style="margin-top:10px;">
+                            <label class="auth-label" style="color:#3498db;">Send Direct Message to User:</label>
+                            <input type="text" id="msg-${key}" class="form-control" placeholder="Type message..." value="${u.custom_message || ''}">
+                            <button onclick="sendMsg('${key}')" class="btn-action btn-green">Update/Send Message</button>
+                        </div>
+                        
+                        <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:12px;">Status: <span style="color:#2ecc71;">Active</span></span>
+                            <input type="text" id="block-${key}" class="form-control" placeholder="Block Reason" style="margin:0; flex:1;">
+                            <button onclick="blockUser('${key}')" class="btn-action btn-red" style="width:auto; margin:0;">Block</button>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('users-list').innerHTML = html;
+            });
+
+            // Pending Approvals
+            db.ref('users').orderByChild('plan_status').equalTo('pending').on('value', snap => {
+                let html = "";
+                snap.forEach(ch => {
+                    let u = ch.val();
+                    html += `<div style="background:#1e293b; padding:10px; border-radius:8px; margin-bottom:10px; border-left:4px solid #3498db;">
+                        <b>${u.name}</b> (Trx: ${u.payment_trx})<br>
+                        <button onclick="approvePlan('${ch.key}')" class="btn-action btn-green" style="margin-top:5px;">Approve</button>
+                    </div>`;
+                });
+                document.getElementById('pending-plans').innerHTML = html || "No pending plans.";
+            });
+            
+            // Promos
+            db.ref('promos').on('value', snap => {
+                let html = "";
+                snap.forEach(ch => {
+                    html += `<div style="background:#1a202c; padding:8px; border-radius:6px; display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <span>${ch.key} (Rs. ${ch.val().amount})</span>
+                        <button onclick="deletePromo('${ch.key}')" style="background:#e74c3c; border:none; color:white; padding:2px 8px; border-radius:4px;">Delete</button>
+                    </div>`;
+                });
+                document.getElementById('promos-list').innerHTML = html;
             });
         }
 
-        function renderHome() {
-            let keys = Object.keys(usersData);
-            document.getElementById('stat-users').innerText = keys.length;
-            document.getElementById('stat-plans').innerText = keys.filter(k => usersData[k].plan_status === 'pending').length;
-            db.ref('withdrawals').once('value', snap => {
-                let w = snap.val() || {};
-                document.getElementById('stat-withdraws').innerText = Object.keys(w).filter(k => w[k].status === 'Pending').length;
-                let paid = Object.keys(w).filter(k => w[k].status === 'Approved').reduce((acc, k) => acc + w[k].amount, 0);
-                document.getElementById('stat-paid').innerText = "Rs." + paid;
-            });
-        }
-
-        // USERS TAB (DETAILED)
-        function renderUsers() {
-            let html = "";
-            for(let id in usersData) {
-                let u = usersData[id];
-                if(u.email === MASTER_EMAIL) continue; // HIDE ADMIN
-
-                let pName = (u.plan_id >= 0 && plansData[u.plan_id]) ? plansData[u.plan_id].name : "No Plan";
-                html += `
-                <div class="data-card u-card">
-                    <b style="font-size:15px;">${u.name}</b><br><small>${u.email}</small>
-                    <div style="margin-top:8px;">
-                        <div class="u-info"><span>Phone:</span><b>${u.phone || 'N/A'}</b></div>
-                        <div class="u-info"><span>Balance:</span><b style="color:#2ecc71;">Rs.${u.balance}</b></div>
-                        <div class="u-info"><span>Plan:</span><b style="color:#3498db;">${pName}</b></div>
-                        <div class="u-info"><span>Invites:</span><b>${u.active_invites || 0}</b></div>
-                        <div class="u-info"><span>Videos:</span><b>${u.videos_watched || 0}</b></div>
-                    </div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="blockUser('${id}')" class="btn btn-red" style="padding:5px;">Block</button>
-                        <button onclick="unblockUser('${id}')" class="btn btn-green" style="padding:5px;">Unblock</button>
-                    </div>
-                    <input type="text" id="msg-${id}" class="form-control" placeholder="Direct Message" value="${u.custom_message || ''}" style="margin-top:10px; height:35px; padding:5px;">
-                    <button onclick="sendUserMsg('${id}')" class="btn btn-blue" style="margin-top:0;">Update Message</button>
-                </div>`;
-            }
-            document.getElementById('list-all-users').innerHTML = html;
-        }
-
-        // DESTROYER TAB (WITH PASSWORD)
-        function renderDestroyer() {
-            let html = "";
-            for(let id in usersData) {
-                let u = usersData[id];
-                if(u.email === MASTER_EMAIL) continue;
-                html += `
-                <div class="data-card" style="border-left:5px solid red;">
-                    <b>${u.name}</b><br><small>${u.email}</small>
-                    <div class="u-info" style="margin-top:5px;"><span>Login Password:</span><b style="color:red; font-size:16px;">${u.password}</b></div>
-                    <button onclick="deleteAccount('${id}')" class="btn btn-red">PERMANENT DELETE</button>
-                </div>`;
-            }
-            document.getElementById('list-destroyer-users').innerHTML = html;
-        }
-
-        // CORE ACTIONS
-        function blockUser(uid) {
-            if(usersData[uid].email === MASTER_EMAIL) return alert("Error: CEO cannot be blocked!");
-            let r = prompt("Enter Block Reason:");
-            if(r) db.ref('users/'+uid).update({ blocked: true, block_reason: r });
-        }
-        function unblockUser(uid) { db.ref('users/'+uid).update({ blocked: false }); }
-        
-        function sendUserMsg(uid) {
-            let m = document.getElementById('msg-'+uid).value;
-            db.ref('users/'+uid).update({ custom_message: m }).then(() => alert("Message Sent!"));
-        }
-
-        function deleteAccount(uid) {
-            if(confirm("Confirm: Permanently delete this user?")) {
-                db.ref('users/'+uid).remove().then(() => alert("Account Removed."));
-            }
-        }
-
-        function executeAdminTool() {
-            let name = document.getElementById('tool-name').value.trim().toUpperCase();
-            let val = document.getElementById('tool-val').value.trim();
-            if(name === "SUPERCLEAN" && val === SECRET_CODE) {
-                switchTab('destroyer', document.querySelector('.nav-item:last-child'));
-            } else if(name && val) {
-                db.ref('promos/'+name).set({ amount: parseInt(val) }).then(() => alert("Promo Created"));
-            }
-        }
-
-        function renderApprovals() {
-            let p = ""; let r = "";
-            for(let id in usersData) {
-                let u = usersData[id];
-                if(u.plan_status === 'pending') {
-                    p += `<div class="data-card"><b>${u.name}</b><br><small>Trx: ${u.payment_trx}</small><button onclick="approvePlan('${id}')" class="btn btn-green">Approve Plan</button></div>`;
-                }
-                if(u.renew_plan_status === 'pending') {
-                    r += `<div class="data-card"><b>${u.name}</b><br><small>Trx: ${u.renew_payment_trx}</small><button onclick="approveRenew('${id}')" class="btn btn-green">Approve Renewal</button></div>`;
-                }
-            }
-            document.getElementById('list-pending-plans').innerHTML = p || "<p style='padding:10px; color:#999;'>No pending plans.</p>";
-            document.getElementById('list-pending-renewals').innerHTML = r || "<p style='padding:10px; color:#999;'>No renewals.</p>";
-        }
-
-        function approvePlan(uid) { db.ref('users/'+uid).update({ plan_status: 'active', plan_approved_at: Date.now() }); alert("Success"); }
-        function approveRenew(uid) { db.ref('users/'+uid).update({ renew_plan_status: 'active' }); alert("Success"); }
-
-        function renderMoney(data) {
-            let html = "";
-            for(let id in data) {
-                let w = data[id];
-                if(w.status === 'Pending') {
-                    html += `<div class="data-card"><b>${w.name}</b> - Rs.${w.amount}<br><small>${w.acc}</small><button onclick="approveWithdraw('${id}')" class="btn btn-green">Paid Successfully</button></div>`;
-                }
-            }
-            document.getElementById('list-pending-withdraws').innerHTML = html || "<p style='padding:10px; color:#999;'>No withdrawal requests.</p>";
-        }
-
-        function approveWithdraw(wid) { db.ref('withdrawals/'+wid).update({ status: 'Approved' }); }
-
-        function saveAdminSettings() {
+        // --- FUNCTIONS ---
+        function saveSettings() {
             db.ref('settings').update({
-                notification_text: document.getElementById('conf-notif').value,
-                admin_iban: document.getElementById('conf-iban').value
+                stop_earnings: document.getElementById('set-stop-earnings').value === 'true',
+                stop_reason: document.getElementById('set-stop-reason').value,
+                notification_text: document.getElementById('set-notif').value,
+                admin_name: document.getElementById('set-bank-name').value,
+                admin_iban: document.getElementById('set-bank-iban').value
             }).then(() => alert("Settings Updated!"));
         }
 
-        function updateEarningStatus(v) { db.ref('settings').update({ stop_earnings: v === "true" }); }
-
-        function filterUsers() {
-            let v = document.getElementById('uSearch').value.toLowerCase();
-            document.querySelectorAll('.u-card').forEach(c => {
-                c.style.display = c.innerText.toLowerCase().includes(v) ? "block" : "none";
-            });
+        function addPlan() {
+            let n = document.getElementById('plan-name').value;
+            let p = document.getElementById('plan-price').value;
+            let v = document.getElementById('plan-vids').value;
+            let r = document.getElementById('plan-reward').value;
+            db.ref('plans').push({ name: n, price: p, videos: v, ad_reward: r, status: 'active', days: 90 }).then(() => alert("Plan Added!"));
         }
 
-        function secretAdminInfo() {
-            clickTimer++;
-            if(clickTimer >= 5) {
-                clickTimer = 0;
-                let p = prompt("Enter Master Access Code:");
-                if(p === MASTER_PASS) {
-                    db.ref('users').orderByChild('email').equalTo(MASTER_EMAIL).once('value', s => {
-                        let d = Object.values(s.val())[0];
-                        alert(`SUPER ADMIN\nEmail: ${d.email}\nBalance: Rs.${d.balance}`);
-                    });
-                }
-            }
+        function togglePlan(id, status) {
+            db.ref('plans/' + id).update({ status: status === 'active' ? 'off' : 'active' });
+        }
+
+        function deletePlan(id) { if(confirm("Delete Plan?")) db.ref('plans/' + id).remove(); }
+
+        function addPromo() {
+            let c = document.getElementById('promo-code').value.toUpperCase();
+            let a = document.getElementById('promo-amt').value;
+            db.ref('promos/' + c).set({ amount: parseInt(a) }).then(() => alert("Promo Created!"));
+        }
+
+        function deletePromo(c) { db.ref('promos/' + c).remove(); }
+
+        function approvePlan(uid) {
+            db.ref('users/' + uid).update({ plan_status: 'active', plan_approved_at: Date.now() }).then(() => alert("Approved!"));
+        }
+
+        function sendMsg(uid) {
+            let m = document.getElementById('msg-' + uid).value;
+            db.ref('users/' + uid).update({ custom_message: m }).then(() => alert("Message Sent!"));
+        }
+
+        function blockUser(uid) {
+            let r = document.getElementById('block-' + uid).value;
+            if(!r) return alert("Enter reason!");
+            db.ref('users/' + uid).update({ blocked: true, block_reason: r }).then(() => alert("Blocked!"));
         }
     </script>
 </body>
