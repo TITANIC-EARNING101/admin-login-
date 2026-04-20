@@ -1,343 +1,710 @@
-
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TITANIC EARNING PLATFORM OFFICIAL </title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDKs -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>TITANIC ADMIN | MOBILE PANEL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <style>
-        /* DARK THEME ACCORDING TO YOUR SCREENSHOTS */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #1a202c; color: #e2e8f0; padding-bottom: 50px; }
-
-        /* HEADER */
-        .admin-header { 
-            background: #e74c3c; color: white; padding: 15px 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            margin: 15px; border-radius: 12px; font-weight: bold; font-size: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
-        .back-btn { 
-            background: #2d3748; color: white; border: none; padding: 6px 15px; 
-            border-radius: 6px; cursor: pointer; font-size: 14px; 
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 12px;
+            font-size: 14px;
         }
-
-        .container { padding: 0 15px; max-width: 600px; margin: 0 auto; }
-
-        /* CARD STYLE */
-        .admin-card { 
-            background: #2d3748; padding: 15px; border-radius: 10px; 
-            margin-bottom: 20px; border-left: 4px solid #3498db; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
         }
-        .admin-card h3 { font-size: 18px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        
-        /* SPECIFIC BORDER COLORS FROM SCREENSHOTS */
-        .border-blue { border-left-color: #3498db; }
-        .border-purple { border-left-color: #9b59b6; }
-        .border-red { border-left-color: #e74c3c; }
-        .border-green { border-left-color: #2ecc71; }
-        .border-orange { border-left-color: #f39c12; }
-
-        /* FORM CONTROLS */
-        .auth-label { display: block; font-size: 12px; color: #a0aec0; margin-bottom: 5px; font-weight: bold; }
-        .form-control { 
-            width: 100%; padding: 12px; border: 1px solid #4a5568; border-radius: 8px; 
-            background: #1a202c; color: white; outline: none; margin-bottom: 12px; font-size: 14px;
+        .admin-header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 16px;
+            border-radius: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #334155;
         }
-        textarea.form-control { resize: none; }
-
-        /* WARNING BOX FOR EARNING STATUS */
-        .warning-box { 
-            background: rgba(184, 134, 11, 0.2); border: 1px solid #b8860b; 
-            padding: 10px; border-radius: 8px; margin-bottom: 15px; 
+        .admin-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
         }
-
-        /* BUTTONS */
-        .btn-action { 
-            width: 100%; padding: 12px; border: none; border-radius: 8px; 
-            color: white; font-weight: bold; cursor: pointer; margin-bottom: 5px;
+        .btn {
+            background: #3b82f6;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 13px;
         }
-        .btn-blue { background: #3498db; }
-        .btn-purple { background: #9b59b6; }
-        .btn-green { background: #2ecc71; }
-        .btn-red { background: #e74c3c; }
-
-        /* USER DETAIL BOX (SCREENSHOT STYLE) */
-        .user-detail-box { 
-            background: #1e293b; padding: 15px; border-radius: 10px; 
-            border: 1px solid #334155; margin-bottom: 15px; 
+        .btn-danger { background: #ef4444; }
+        .btn-success { background: #10b981; }
+        .btn-warning { background: #f59e0b; }
+        .btn-secondary { background: #64748b; }
+        .btn-outline { background: transparent; border: 1px solid #475569; color: #e2e8f0; }
+        .card {
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 18px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
         }
-        .user-header { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 10px; }
-        .ceo-badge { background: #e74c3c; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
-        .user-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
-        .text-green { color: #2ecc71; font-weight: bold; }
-
-        /* LOGIN OVERLAY */
-        #login-screen {
-            position: fixed; top:0; left:0; width:100%; height:100%; background:#1a202c;
-            display: flex; justify-content: center; align-items: center; z-index: 9999;
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #334155;
+        }
+        .input, select, textarea {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 12px;
+            color: white;
+            width: 100%;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media (min-width: 640px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .user-card, .request-item, .plan-item, .tool-item, .promo-item {
+            background: #0f172a;
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border: 1px solid #2d3a4e;
+        }
+        .detail-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .detail-label {
+            color: #94a3b8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-value {
+            font-weight: 500;
+            word-break: break-word;
+        }
+        .text-green { color: #10b981; font-weight: 600; }
+        .text-red { color: #ef4444; }
+        .mt-2 { margin-top: 10px; }
+        .mb-1 { margin-bottom: 6px; }
+        .separator {
+            height: 1px;
+            background: #334155;
+            margin: 12px 0;
+        }
+        .search-box {
+            background: #0f172a;
+            border-radius: 40px;
+            padding: 8px 16px;
+            border: 1px solid #334155;
+            margin-bottom: 16px;
+        }
+        .search-box input {
+            background: transparent;
+            border: none;
+            padding: 8px 0;
+            margin: 0;
+            width: 100%;
+        }
+        button {
+            background: #3b82f6;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        button.danger { background: #ef4444; }
+        button.success { background: #10b981; }
+        button.warning { background: #f59e0b; }
+        button.small { padding: 6px 12px; font-size: 12px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 14px;
+            text-align: center;
+            border-left: 3px solid #ef4444;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1e293b;
+            border-left: 4px solid #10b981;
+            padding: 12px;
+            border-radius: 16px;
+            z-index: 1000;
+            text-align: center;
+            animation: fadeUp 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .login-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .login-box {
+            background: #1e293b;
+            padding: 28px;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+        }
+        .hidden { display: none; }
+        .badge {
+            background: #f59e0b20;
+            color: #fbbf24;
+            border-radius: 30px;
+            padding: 2px 8px;
+            font-size: 11px;
+        }
+        .disabled-btn {
+            opacity: 0.5;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <!-- PASSWORD PROTECTION -->
-    <div id="login-screen">
-        <div style="background:#2d3748; padding:30px; border-radius:15px; width:90%; max-width:350px; text-align:center;">
-            <h2 style="color:#e74c3c; margin-bottom:20px;">TITANIC ACCESS</h2>
-            <input type="password" id="admin-pass" class="form-control" placeholder="Password">
-            <button class="btn-action btn-red" onclick="checkAuth()">Access </button>
+<div id="loginScreen" class="login-overlay">
+    <div class="login-box">
+        <h2 style="margin-bottom: 20px;">ADMIN ACCESS</h2>
+        <input type="password" id="adminPass" class="input" placeholder="Enter Password">
+        <button onclick="checkAuth()" style="width:100%">Login</button>
+    </div>
+</div>
+
+<div id="mainApp" class="container hidden">
+    <div class="admin-header">
+        <h2>TITANIC ADMIN PANEL</h2>
+        <div style="display: flex; gap: 8px;">
+            <button class="btn-outline" onclick="refreshAll()">Refresh</button>
+            <button class="btn-danger" onclick="logout()">Exit</button>
         </div>
     </div>
 
-    <div id="main-content" style="display:none;">
-        <div class="admin-header">
-            <span><i class="fas fa-users-cog"></i> TITANIC EARNING PLATFORM OFFICIAL</span>
-            <button class="back-btn" onclick="location.reload()">Back</button>
-        </div>
-
-        <div class="container">
-            <!-- SYSTEM SETTINGS -->
-            <div class="admin-card border-blue">
-                <h3><i class="fas fa-cog"></i> System Settings</h3>
-                <div class="warning-box">
-                    <label class="auth-label" style="color:#f39c12;">Global Earning Status</label>
-                    <select id="set-stop-earnings" class="form-control">
-                        <option value="false">Earnings ON (Normal Mode)</option>
-                        <option value="true">Earnings STOPPED</option>
-                    </select>
-                    <label class="auth-label">Reason for Stopping</label>
-                    <input type="text" id="set-stop-reason" class="form-control" placeholder="Today market off">
-                </div>
-                <label class="auth-label">Popup Notification Text</label>
-                <textarea id="set-notif" class="form-control" rows="4"></textarea>
-                <label class="auth-label">Payment Receiver Name</label>
-                <input type="text" id="set-bank-name" class="form-control">
-                <label class="auth-label">Payment IBAN / Account Number</label>
-                <input type="text" id="set-bank-iban" class="form-control">
-                <button class="btn-action btn-blue" onclick="saveSettings()">Update Settings</button>
-            </div>
-
-            <!-- CUSTOM TOOLS -->
-            <div class="admin-card border-blue">
-                <h3><i class="fas fa-wrench"></i> Create Custom Tool / Link</h3>
-                <label class="auth-label">Tool Name</label>
-                <input type="text" id="tool-name" class="form-control">
-                <label class="auth-label">Icon Class</label>
-                <input type="text" id="tool-icon" class="form-control" value="fas fa-star">
-                <label class="auth-label">Tool URL</label>
-                <input type="text" id="tool-link" class="form-control">
-                <button class="btn-action btn-blue" onclick="addTool()">Add Tool</button>
-            </div>
-
-            <!-- CREATE PLAN -->
-            <div class="admin-card border-purple">
-                <h3><i class="fas fa-layer-group"></i> Create New Plan</h3>
-                <label class="auth-label">Plan Name</label>
-                <input type="text" id="plan-name" class="form-control">
-                <label class="auth-label">Plan Price (Rs)</label>
-                <input type="number" id="plan-price" class="form-control">
-                <label class="auth-label">Daily Videos</label>
-                <input type="number" id="plan-vids" class="form-control">
-                <label class="auth-label">Reward Per Ad</label>
-                <input type="number" id="plan-reward" class="form-control">
-                <button class="btn-action btn-purple" onclick="addPlan()">Add Plan</button>
-            </div>
-
-            <!-- MANAGE PLANS -->
-            <div class="admin-card border-red">
-                <h3 style="color:#e74c3c;"><i class="fas fa-trash"></i> Manage / On-Off Plans</h3>
-                <div id="plans-list"></div>
-            </div>
-
-            <!-- PROMO CODES -->
-            <div class="admin-card border-blue">
-                <h3>Create & Manage Promo Codes</h3>
-                <input type="text" id="promo-code" class="form-control" placeholder="CODE">
-                <input type="number" id="promo-amt" class="form-control" placeholder="Amount">
-                <button class="btn-action btn-green" onclick="addPromo()">Create Promo</button>
-                <div id="promos-list" style="margin-top:10px;"></div>
-            </div>
-
-            <!-- PENDING SECTIONS -->
-            <div class="admin-card border-blue"><h3>Pending Plan Approvals</h3><div id="pending-plans"></div></div>
-            <div class="admin-card border-green"><h3>Pending Renewals</h3><div id="pending-renewals"></div></div>
-            <div class="admin-card border-orange"><h3>Pending Withdrawals</h3><div id="pending-withdrawals"></div></div>
-            <div class="admin-card border-purple"><h3>User Complaints</h3><div id="pending-complaints"></div></div>
-
-            <!-- USER ACCOUNTS -->
-            <div class="admin-card border-blue">
-                <h3>All User Accounts (Detailed)</h3>
-                <div id="users-list"></div>
-            </div>
-        </div>
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-number" id="statUsers">0</div><div>Total Users</div></div>
+        <div class="stat-card"><div class="stat-number" id="statPendingWd">0</div><div>Pending WD</div></div>
+        <div class="stat-card"><div class="stat-number" id="statPendingAmt">RS 0</div><div>Pending Amount</div></div>
+        <div class="stat-card"><div class="stat-number" id="statComplaints">0</div><div>Complaints</div></div>
     </div>
 
-    <script>
-        // CONFIGURATION (Same as yours)
-        const firebaseConfig = {
-            apiKey: "AIzaSyAUrAjlAnF5o86YYZn911dNg0Hkbgp3Pnc",
-            authDomain: "titanic-earning.firebaseapp.com",
-            databaseURL: "https://titanic-earning-default-rtdb.firebaseio.com",
-            projectId: "titanic-earning",
-            storageBucket: "titanic-earning.firebasestorage.app",
-            messagingSenderId: "912644789036",
-            appId: "1:912644789036:web:d8fb6ce76367e1c8a7d289"
+    <!-- Global Settings -->
+    <div class="card">
+        <div class="card-title">Global Controls</div>
+        <select id="stopEarnings" class="input">
+            <option value="false">Earnings ON</option>
+            <option value="true">Earnings STOPPED</option>
+        </select>
+        <input id="stopReason" class="input" placeholder="Stop reason">
+        <textarea id="globalNotif" class="input" rows="2" placeholder="Global notification text"></textarea>
+        <div class="flex-between">
+            <input id="bankName" class="input" placeholder="Bank Name" style="width:48%">
+            <input id="bankIban" class="input" placeholder="IBAN" style="width:48%">
+        </div>
+        <div class="flex-between">
+            <input id="inviteLimit" type="number" class="input" placeholder="Invite limit" style="width:48%">
+            <input id="whatsappLink" class="input" placeholder="WhatsApp link" style="width:48%">
+        </div>
+        <button onclick="saveSettings()">Save Settings</button>
+    </div>
+
+    <!-- OTP Requests -->
+    <div class="card">
+        <div class="card-title">OTP Verification Requests</div>
+        <div id="otpList">Loading...</div>
+    </div>
+
+    <!-- Pending Withdrawals -->
+    <div class="card">
+        <div class="card-title">Pending Withdrawals</div>
+        <div id="withdrawalsList">Loading...</div>
+    </div>
+
+    <!-- Custom Tools (with delete) -->
+    <div class="card">
+        <div class="card-title">Custom Tools</div>
+        <input id="toolName" class="input" placeholder="Tool Name">
+        <input id="toolLink" class="input" placeholder="URL">
+        <button onclick="addTool()">Add Tool</button>
+        <div id="toolsList" class="mt-2"></div>
+    </div>
+
+    <!-- Plans: full details + delete -->
+    <div class="card">
+        <div class="card-title">Manage Plans (Full Details)</div>
+        <div id="plansList">Loading...</div>
+        <div class="separator"></div>
+        <div class="card-title" style="margin-top:8px;">Create New Plan</div>
+        <input id="newPlanName" class="input" placeholder="Plan Name">
+        <input id="newPlanPrice" type="number" class="input" placeholder="Price (RS)">
+        <input id="newPlanVids" type="number" class="input" placeholder="Daily Videos">
+        <input id="newPlanReward" type="number" class="input" placeholder="Reward per Ad (RS)">
+        <button class="success" onclick="createPlan()">Create Plan</button>
+    </div>
+
+    <!-- Promo Codes with delete -->
+    <div class="card">
+        <div class="card-title">Promo Codes</div>
+        <div class="flex-between">
+            <input id="promoCode" class="input" placeholder="CODE" style="width:60%">
+            <input id="promoAmount" type="number" class="input" placeholder="RS" style="width:35%">
+        </div>
+        <button class="warning" onclick="addPromo()">Create Promo</button>
+        <div id="promosList" class="mt-2"></div>
+    </div>
+
+    <!-- Pending Approvals & Renewals & Complaints -->
+    <div class="grid-2">
+        <div class="card"><div class="card-title">Pending Plan Approvals</div><div id="pendingPlansList">Loading...</div></div>
+        <div class="card"><div class="card-title">Pending Renewals</div><div id="pendingRenewalsList">Loading...</div></div>
+        <div class="card"><div class="card-title">User Complaints</div><div id="complaintsList">Loading...</div></div>
+    </div>
+
+    <!-- Users Full Details (CEO protected) -->
+    <div class="card">
+        <div class="card-title">All Users (Complete Details)</div>
+        <div class="search-box"><input type="text" id="searchUser" placeholder="Search by name, email, phone..."></div>
+        <div id="usersList">Loading users...</div>
+    </div>
+</div>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyAUrAjlAnF5o86YYZn911dNg0Hkbgp3Pnc",
+        authDomain: "titanic-earning.firebaseapp.com",
+        databaseURL: "https://titanic-earning-default-rtdb.firebaseio.com",
+        projectId: "titanic-earning",
+        storageBucket: "titanic-earning.firebasestorage.app",
+        messagingSenderId: "912644789036",
+        appId: "1:912644789036:web:d8fb6ce76367e1c8a7d289"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const ADMIN_PASS = "Ta.732419";
+    let allUsers = [];
+
+    function showToast(msg, isErr = false) {
+        let t = document.createElement('div');
+        t.className = 'toast';
+        t.style.borderLeftColor = isErr ? '#ef4444' : '#10b981';
+        t.innerText = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3000);
+    }
+
+    function escapeHtml(str) {
+        if (str === undefined || str === null) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function checkAuth() {
+        let pass = document.getElementById('adminPass').value;
+        if (pass === ADMIN_PASS) {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            loadAll();
+        } else {
+            showToast("Wrong password", true);
+        }
+    }
+    function logout() {
+        document.getElementById('loginScreen').classList.remove('hidden');
+        document.getElementById('mainApp').classList.add('hidden');
+    }
+    function refreshAll() { loadAll(); showToast("Refreshed"); }
+
+    async function loadAll() {
+        loadSettings();
+        loadOTP();
+        loadWithdrawals();
+        loadTools();
+        loadPlansFull();
+        loadPromos();
+        loadPendingPlans();
+        loadPendingRenewals();
+        loadComplaints();
+        loadUsers();
+    }
+
+    function loadSettings() {
+        db.ref('settings').on('value', s => {
+            let val = s.val() || {};
+            document.getElementById('stopEarnings').value = val.stop_earnings ? "true" : "false";
+            document.getElementById('stopReason').value = val.stop_reason || '';
+            document.getElementById('globalNotif').value = val.notification_text || '';
+            document.getElementById('bankName').value = val.admin_name || '';
+            document.getElementById('bankIban').value = val.admin_iban || '';
+            document.getElementById('inviteLimit').value = val.invite_limit || 5;
+            document.getElementById('whatsappLink').value = val.group_link || '';
+        });
+    }
+    function saveSettings() {
+        let settings = {
+            stop_earnings: document.getElementById('stopEarnings').value === 'true',
+            stop_reason: document.getElementById('stopReason').value,
+            notification_text: document.getElementById('globalNotif').value,
+            admin_name: document.getElementById('bankName').value,
+            admin_iban: document.getElementById('bankIban').value,
+            invite_limit: parseInt(document.getElementById('inviteLimit').value) || 5,
+            group_link: document.getElementById('whatsappLink').value
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        db.ref('settings').update(settings).then(() => showToast("Settings saved"));
+    }
 
-        function checkAuth() {
-            if(document.getElementById('admin-pass').value === "Ta.732419") {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-content').style.display = 'block';
-                loadAdminData();
-            } else { alert("Wrong Password!"); }
-        }
-
-        function loadAdminData() {
-            // Settings
-            db.ref('settings').on('value', snap => {
-                let s = snap.val() || {};
-                document.getElementById('set-stop-earnings').value = s.stop_earnings || "false";
-                document.getElementById('set-stop-reason').value = s.stop_reason || "";
-                document.getElementById('set-notif').value = s.notification_text || "";
-                document.getElementById('set-bank-name').value = s.admin_name || "";
-                document.getElementById('set-bank-iban').value = s.admin_iban || "";
+    // OTP
+    function loadOTP() {
+        db.ref('otp_requests').orderByChild('status').equalTo('pending').on('value', snap => {
+            let html = '';
+            if (!snap.exists()) html = '<div class="badge">No pending OTP</div>';
+            else snap.forEach(c => {
+                let req = c.val();
+                let key = c.key;
+                html += `<div class="request-item">
+                            <div><strong>${escapeHtml(req.name)}</strong> | ${escapeHtml(req.email)}</div>
+                            <div class="flex-between mt-2">
+                                <input type="text" id="otp-${key}" class="input" placeholder="6-digit code" style="margin:0; width:60%">
+                                <button class="success small" onclick="sendOTP('${key}','${req.uid}')">Send</button>
+                            </div>
+                        </div>`;
             });
+            document.getElementById('otpList').innerHTML = html;
+        });
+    }
+    window.sendOTP = (reqId, uid) => {
+        let code = document.getElementById(`otp-${reqId}`).value.trim();
+        if (!code) return showToast("Enter code", true);
+        db.ref(`users/${uid}`).update({ withdrawal_email_code: code }).then(() => {
+            db.ref(`otp_requests/${reqId}`).update({ status: 'sent', code: code });
+            showToast("Code sent");
+        });
+    };
 
-            // Plans
-            db.ref('plans').on('value', snap => {
-                let html = "";
-                snap.forEach(ch => {
-                    let p = ch.val();
-                    html += `<div style="background:#1a202c; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <span><b>${p.name}</b> <span style="color:${p.status==='off'?'#e74c3c':'#2ecc71'}">(${p.status==='off'?'OFF':'ON'})</span><br><small>Rs. ${p.price}</small></span>
-                        <div>
-                            <button onclick="togglePlan('${ch.key}', '${p.status}')" style="background:#2ecc71; border:none; padding:5px 10px; color:white; border-radius:4px; cursor:pointer;">${p.status==='off'?'Turn ON':'Turn OFF'}</button>
-                            <button onclick="deletePlan('${ch.key}')" style="background:#e74c3c; border:none; padding:5px 10px; color:white; border-radius:4px; cursor:pointer;">Delete</button>
+    // Withdrawals
+    function loadWithdrawals() {
+        db.ref('withdrawals').orderByChild('status').equalTo('Pending').on('value', snap => {
+            let html = '', totalAmt = 0;
+            if (!snap.exists()) html = '<div>No pending withdrawals</div>';
+            else snap.forEach(c => {
+                let w = c.val();
+                totalAmt += w.amount;
+                html += `<div class="request-item">
+                            <div class="flex-between"><strong>${escapeHtml(w.name)}</strong><span class="text-green">RS ${w.amount}</span></div>
+                            <div>${w.method}: ${w.acc}</div>
+                            <div class="flex-between mt-2">
+                                <button class="success small" onclick="approveWd('${c.key}','${w.uid}',${w.amount})">Approve</button>
+                                <button class="danger small" onclick="rejectWd('${c.key}','${w.uid}',${w.amount})">Reject & Refund</button>
+                            </div>
+                        </div>`;
+            });
+            document.getElementById('withdrawalsList').innerHTML = html;
+            document.getElementById('statPendingWd').innerText = snap.numChildren();
+            document.getElementById('statPendingAmt').innerHTML = `RS ${totalAmt.toLocaleString()}`;
+        });
+    }
+    window.approveWd = (id, uid, amt) => { if(confirm(`Approve RS ${amt}?`)) db.ref(`withdrawals/${id}`).update({ status: 'Approved' }).then(()=>showToast("Approved")); };
+    window.rejectWd = (id, uid, amt) => { if(confirm(`Reject & refund RS ${amt}?`)) { db.ref(`users/${uid}`).transaction(u=>{ if(u) u.balance = (u.balance||0)+amt; return u; }).then(()=> db.ref(`withdrawals/${id}`).update({ status: 'Rejected' })).then(()=>showToast("Refunded")); } };
+
+    // Tools with delete button
+    function loadTools() {
+        db.ref('custom_tools').on('value', snap => {
+            let html = '';
+            snap.forEach(c => {
+                let t = c.val();
+                html += `<div class="tool-item flex-between">
+                            <span>${escapeHtml(t.name)}</span>
+                            <button class="danger small" onclick="deleteTool('${c.key}')">Delete</button>
+                        </div>`;
+            });
+            document.getElementById('toolsList').innerHTML = html || '<div>No tools</div>';
+        });
+    }
+    function addTool() {
+        let name = document.getElementById('toolName').value.trim();
+        let link = document.getElementById('toolLink').value.trim();
+        if (!name || !link) return showToast("Fill all", true);
+        db.ref('custom_tools').push({ name: name, link: link, icon: '' });
+        showToast("Tool added");
+        document.getElementById('toolName').value = '';
+        document.getElementById('toolLink').value = '';
+    }
+    window.deleteTool = (key) => { if(confirm("Delete tool?")) db.ref(`custom_tools/${key}`).remove(); };
+
+    // Plans: full details + delete
+    function loadPlansFull() {
+        db.ref('plans').on('value', snap => {
+            let html = '';
+            snap.forEach(c => {
+                let p = c.val();
+                html += `<div class="plan-item">
+                            <div class="flex-between">
+                                <strong>${escapeHtml(p.name)}</strong>
+                                <span class="${p.status==='active'?'text-green':'text-red'}">${p.status==='active'?'ACTIVE':'OFF'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <div><span class="detail-label">Price</span><div class="detail-value">RS ${p.price}</div></div>
+                                <div><span class="detail-label">Daily Videos</span><div class="detail-value">${p.videos || 0}</div></div>
+                                <div><span class="detail-label">Reward/Ad</span><div class="detail-value">RS ${p.ad_reward || 0}</div></div>
+                                <div><span class="detail-label">Duration</span><div class="detail-value">${p.days || 90} days</div></div>
+                            </div>
+                            <div class="flex-between mt-2">
+                                <button class="warning small" onclick="togglePlan('${c.key}','${p.status}')">${p.status==='active'?'Turn OFF':'Turn ON'}</button>
+                                <button class="danger small" onclick="deletePlan('${c.key}')">Delete Plan</button>
+                            </div>
+                        </div>`;
+            });
+            document.getElementById('plansList').innerHTML = html || '<div>No plans</div>';
+        });
+    }
+    function createPlan() {
+        let name = document.getElementById('newPlanName').value.trim();
+        let price = parseInt(document.getElementById('newPlanPrice').value);
+        let videos = parseInt(document.getElementById('newPlanVids').value) || 10;
+        let reward = parseInt(document.getElementById('newPlanReward').value) || 5;
+        if (!name || isNaN(price)) return showToast("Name and price required", true);
+        db.ref(`plans/${Date.now()}`).set({ name, price, videos, ad_reward: reward, status: 'active', days: 90 }).then(() => showToast("Plan created"));
+    }
+    window.togglePlan = (id, status) => { db.ref(`plans/${id}`).update({ status: status === 'active' ? 'off' : 'active' }); };
+    window.deletePlan = (id) => { if(confirm("Delete plan permanently?")) db.ref(`plans/${id}`).remove(); };
+
+    // Promos with delete
+    function loadPromos() {
+        db.ref('promos').on('value', snap => {
+            let html = '';
+            snap.forEach(c => {
+                html += `<div class="promo-item flex-between">
+                            <span><strong>${escapeHtml(c.key)}</strong> → RS ${c.val().amount}</span>
+                            <button class="danger small" onclick="deletePromo('${c.key}')">Delete</button>
+                        </div>`;
+            });
+            document.getElementById('promosList').innerHTML = html || '<div>No promos</div>';
+        });
+    }
+    function addPromo() {
+        let code = document.getElementById('promoCode').value.trim().toUpperCase();
+        let amt = parseInt(document.getElementById('promoAmount').value);
+        if (!code || isNaN(amt)) return showToast("Code and amount", true);
+        db.ref(`promos/${code}`).set({ amount: amt }).then(() => showToast("Promo added"));
+    }
+    window.deletePromo = (code) => { if(confirm("Delete promo?")) db.ref(`promos/${code}`).remove(); };
+
+    // Pending plan approvals
+    function loadPendingPlans() {
+        db.ref('users').orderByChild('plan_status').equalTo('pending').on('value', snap => {
+            let html = '';
+            snap.forEach(c => {
+                let u = c.val();
+                html += `<div class="request-item">
+                            <div><strong>${escapeHtml(u.name)}</strong> | ${u.payment_num || 'No number'}</div>
+                            <div>Trx: ${u.payment_trx || 'N/A'}</div>
+                            <button class="success small mt-2" onclick="approvePlan('${c.key}')">Approve Plan</button>
+                        </div>`;
+            });
+            document.getElementById('pendingPlansList').innerHTML = html || '<div>No pending approvals</div>';
+        });
+    }
+    window.approvePlan = (uid) => {
+        db.ref(`users/${uid}`).once('value', snap => {
+            let u = snap.val();
+            db.ref(`users/${uid}`).update({ plan_status: 'active', plan_approved_at: Date.now(), total_plans_bought: (u.total_plans_bought||0)+1 }).then(()=> showToast("Plan approved"));
+        });
+    };
+
+    // Pending renewals
+    function loadPendingRenewals() {
+        db.ref('users').orderByChild('renew_plan_status').equalTo('pending').on('value', snap => {
+            let html = '';
+            snap.forEach(c => {
+                let u = c.val();
+                html += `<div class="request-item">
+                            <div><strong>${escapeHtml(u.name)}</strong> | Renew: ${u.renew_plan_id || '?'}</div>
+                            <div>Trx: ${u.renew_payment_trx || 'N/A'}</div>
+                            <button class="success small mt-2" onclick="approveRenewal('${c.key}')">Approve Renewal</button>
+                        </div>`;
+            });
+            document.getElementById('pendingRenewalsList').innerHTML = html || '<div>No renewals</div>';
+        });
+    }
+    window.approveRenewal = (uid) => { db.ref(`users/${uid}`).update({ renew_plan_status: 'active' }).then(()=>showToast("Renewal approved")); };
+
+    // Complaints
+    function loadComplaints() {
+        db.ref('complaints').orderByChild('status').equalTo('Pending').on('value', snap => {
+            let html = '', count=0;
+            snap.forEach(c => { count++;
+                let comp = c.val();
+                html += `<div class="request-item">
+                            <div><strong>${escapeHtml(comp.name)}</strong> (${comp.type})</div>
+                            <div class="detail-value" style="background:#0f172a; padding:8px; border-radius:12px; margin:8px 0">${escapeHtml(comp.message)}</div>
+                            <textarea id="reply-${c.key}" class="input" placeholder="Admin reply..." rows="2"></textarea>
+                            <button class="small mt-2" onclick="resolveComp('${c.key}')">Reply & Resolve</button>
+                        </div>`;
+            });
+            document.getElementById('complaintsList').innerHTML = html || '<div>No complaints</div>';
+            document.getElementById('statComplaints').innerText = count;
+        });
+    }
+    window.resolveComp = (id) => {
+        let reply = document.getElementById(`reply-${id}`).value.trim();
+        if(!reply) return showToast("Write reply", true);
+        db.ref(`complaints/${id}`).update({ status: 'Resolved', admin_reply: reply }).then(()=>showToast("Resolved"));
+    };
+
+    // Users complete details with CEO protection
+    function loadUsers() {
+        db.ref('users').on('value', snap => {
+            let users = [];
+            snap.forEach(c => { users.push({ id: c.key, ...c.val() }); });
+            allUsers = users;
+            document.getElementById('statUsers').innerText = users.length;
+            renderUsers();
+        });
+    }
+    function renderUsers() {
+        let search = document.getElementById('searchUser')?.value.toLowerCase() || '';
+        let filtered = allUsers.filter(u => 
+            (u.name && String(u.name).toLowerCase().includes(search)) ||
+            (u.email && String(u.email).toLowerCase().includes(search)) ||
+            (u.phone && String(u.phone).includes(search))
+        );
+        let html = '';
+        filtered.forEach(u => {
+            const isCEO = (u.role === 'admin');
+            let expiry = "No Active Plan";
+            if (u.plan_expiry && u.plan_expiry > Date.now()) expiry = new Date(u.plan_expiry).toLocaleString();
+            let planName = (u.plan_id && u.plan_id !== -1) ? u.plan_id : "None";
+            html += `<div class="user-card">
+                        <div class="flex-between">
+                            <div><strong>${escapeHtml(u.name)}</strong> ${isCEO ? '<span class="badge">CEO</span>' : ''}<br><span style="font-size:12px">${escapeHtml(u.email)}</span></div>
+                            <div class="text-green">RS ${u.balance || 0}</div>
                         </div>
-                    </div>`;
-                });
-                document.getElementById('plans-list').innerHTML = html;
-            });
-
-            // Users (SCREENSHOT STYLE)
-            db.ref('users').on('value', snap => {
-                let html = "";
-                snap.forEach(ch => {
-                    let u = ch.val();
-                    let key = ch.key;
-                    let isCEO = u.role === 'admin';
-                    
-                    html += `
-                    <div class="user-detail-box">
-                        <div class="user-header">
-                            <b style="font-size:16px;">${u.name}</b> ${isCEO ? '<span class="ceo-badge">CEO</span>' : ''}<br>
-                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-envelope"></i> ${u.email}</span><br>
-                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-key"></i> ${u.password}</span><br>
-                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-link"></i> Invite Code: <b>${u.invite_code}</b></span><br>
-                            <span style="font-size:12px; color:#a0aec0;"><i class="fas fa-phone"></i> Phone: <b>${u.phone || 'Not Bound'}</b></span>
+                        <div class="detail-row">
+                            <div><span class="detail-label">Password</span><div>${escapeHtml(u.password)}</div></div>
+                            <div><span class="detail-label">Invite Code</span><div>${escapeHtml(u.invite_code)}</div></div>
+                            <div><span class="detail-label">Phone</span><div>${u.phone || 'Not Bound'}</div></div>
                         </div>
-                        <div class="user-row"><span>Bal: <span class="text-green">Rs.${u.balance}</span></span> <span>Plan: <b>${u.plan_id || 'None'}</b></span></div>
-                        <div class="user-row"><span style="color:#f39c12;">Expiry: Active</span> <span>Total Bought: 0</span></div>
-                        <div class="user-row"><span>Invites: ${u.invites || 0}</span> <span>Videos: ${u.videos_watched || 0}</span></div>
-                        
-                        <div style="margin-top:10px;">
-                            <label class="auth-label" style="color:#3498db;">Send Direct Message to User:</label>
-                            <input type="text" id="msg-${key}" class="form-control" placeholder="Type message..." value="${u.custom_message || ''}">
-                            <button onclick="sendMsg('${key}')" class="btn-action btn-green">Update/Send Message</button>
+                        <div class="detail-row">
+                            <div><span class="detail-label">Plan</span><div>${planName} (${u.plan_status || 'inactive'})</div></div>
+                            <div><span class="detail-label">Expiry</span><div>${expiry}</div></div>
+                            <div><span class="detail-label">Total Plans</span><div>${u.total_plans_bought || 0}</div></div>
                         </div>
-                        
-                        <div style="margin-top:10px; display:flex; align-items:center; gap:10px;">
-                            <span style="font-size:12px;">Status: <span style="color:#2ecc71;">Active</span></span>
-                            <input type="text" id="block-${key}" class="form-control" placeholder="Block Reason" style="margin:0; flex:1;">
-                            <button onclick="blockUser('${key}')" class="btn-action btn-red" style="width:auto; margin:0;">Block</button>
+                        <div class="detail-row">
+                            <div><span class="detail-label">Invites</span><div>${u.invites || 0} (Active: ${u.active_invites || 0})</div></div>
+                            <div><span class="detail-label">Videos</span><div>${u.daily_videos_watched || 0}</div></div>
+                            <div><span class="detail-label">Status</span><div style="color:${u.blocked?'#ef4444':'#10b981'}">${u.blocked?'BLOCKED':'ACTIVE'}</div></div>
                         </div>
-                    </div>`;
-                });
-                document.getElementById('users-list').innerHTML = html;
-            });
-
-            // Pending Approvals
-            db.ref('users').orderByChild('plan_status').equalTo('pending').on('value', snap => {
-                let html = "";
-                snap.forEach(ch => {
-                    let u = ch.val();
-                    html += `<div style="background:#1e293b; padding:10px; border-radius:8px; margin-bottom:10px; border-left:4px solid #3498db;">
-                        <b>${u.name}</b> (Trx: ${u.payment_trx})<br>
-                        <button onclick="approvePlan('${ch.key}')" class="btn-action btn-green" style="margin-top:5px;">Approve</button>
-                    </div>`;
-                });
-                document.getElementById('pending-plans').innerHTML = html || "No pending plans.";
-            });
-            
-            // Promos
-            db.ref('promos').on('value', snap => {
-                let html = "";
-                snap.forEach(ch => {
-                    html += `<div style="background:#1a202c; padding:8px; border-radius:6px; display:flex; justify-content:space-between; margin-bottom:5px;">
-                        <span>${ch.key} (Rs. ${ch.val().amount})</span>
-                        <button onclick="deletePromo('${ch.key}')" style="background:#e74c3c; border:none; color:white; padding:2px 8px; border-radius:4px;">Delete</button>
-                    </div>`;
-                });
-                document.getElementById('promos-list').innerHTML = html;
-            });
+                        <div class="separator"></div>
+                        <div class="flex-between">
+                            <input id="msg-${u.id}" class="input" placeholder="Direct message" value="${escapeHtml(u.custom_message)}" style="flex:1; margin-right:8px">
+                            <button class="small" onclick="sendMsg('${u.id}')">Send</button>
+                        </div>`;
+            // Block section: hide completely for CEO, otherwise show
+            if (!isCEO) {
+                html += `<div class="flex-between mt-2">
+                            <input id="blockReason-${u.id}" class="input" placeholder="Block reason" style="width:55%" value="${escapeHtml(u.block_reason)}">
+                            ${!u.blocked ? `<button class="danger small" onclick="blockUser('${u.id}')">Block</button>` : `<button class="success small" onclick="unblockUser('${u.id}')">Unblock</button>`}
+                        </div>`;
+            } else {
+                html += `<div class="mt-2" style="color:#94a3b8; font-size:12px;">🔒 CEO account cannot be blocked</div>`;
+            }
+            html += `</div>`;
+        });
+        document.getElementById('usersList').innerHTML = html || '<div>No users</div>';
+    }
+    window.sendMsg = (uid) => { let msg = document.getElementById(`msg-${uid}`).value; db.ref(`users/${uid}`).update({ custom_message: msg }).then(()=>showToast("Message sent")); };
+    window.blockUser = (uid) => {
+        // Double-check CEO protection
+        let user = allUsers.find(u => u.id === uid);
+        if (user && user.role === 'admin') {
+            showToast("CEO account cannot be blocked", true);
+            return;
         }
-
-        // --- FUNCTIONS ---
-        function saveSettings() {
-            db.ref('settings').update({
-                stop_earnings: document.getElementById('set-stop-earnings').value === 'true',
-                stop_reason: document.getElementById('set-stop-reason').value,
-                notification_text: document.getElementById('set-notif').value,
-                admin_name: document.getElementById('set-bank-name').value,
-                admin_iban: document.getElementById('set-bank-iban').value
-            }).then(() => alert("Settings Updated!"));
+        let reason = document.getElementById(`blockReason-${uid}`).value;
+        if(!reason) return showToast("Reason required", true);
+        db.ref(`users/${uid}`).update({ blocked: true, block_reason: reason }).then(()=>showToast("Blocked"));
+    };
+    window.unblockUser = (uid) => {
+        let user = allUsers.find(u => u.id === uid);
+        if (user && user.role === 'admin') {
+            showToast("CEO account cannot be unblocked (or was never blocked)", true);
+            return;
         }
+        db.ref(`users/${uid}`).update({ blocked: false, block_reason: '' }).then(()=>showToast("Unblocked"));
+    };
 
-        function addPlan() {
-            let n = document.getElementById('plan-name').value;
-            let p = document.getElementById('plan-price').value;
-            let v = document.getElementById('plan-vids').value;
-            let r = document.getElementById('plan-reward').value;
-            db.ref('plans').push({ name: n, price: p, videos: v, ad_reward: r, status: 'active', days: 90 }).then(() => alert("Plan Added!"));
-        }
-
-        function togglePlan(id, status) {
-            db.ref('plans/' + id).update({ status: status === 'active' ? 'off' : 'active' });
-        }
-
-        function deletePlan(id) { if(confirm("Delete Plan?")) db.ref('plans/' + id).remove(); }
-
-        function addPromo() {
-            let c = document.getElementById('promo-code').value.toUpperCase();
-            let a = document.getElementById('promo-amt').value;
-            db.ref('promos/' + c).set({ amount: parseInt(a) }).then(() => alert("Promo Created!"));
-        }
-
-        function deletePromo(c) { db.ref('promos/' + c).remove(); }
-
-        function approvePlan(uid) {
-            db.ref('users/' + uid).update({ plan_status: 'active', plan_approved_at: Date.now() }).then(() => alert("Approved!"));
-        }
-
-        function sendMsg(uid) {
-            let m = document.getElementById('msg-' + uid).value;
-            db.ref('users/' + uid).update({ custom_message: m }).then(() => alert("Message Sent!"));
-        }
-
-        function blockUser(uid) {
-            let r = document.getElementById('block-' + uid).value;
-            if(!r) return alert("Enter reason!");
-            db.ref('users/' + uid).update({ blocked: true, block_reason: r }).then(() => alert("Blocked!"));
-        }
-    </script>
+    document.getElementById('searchUser')?.addEventListener('input', () => renderUsers());
+</script>
 </body>
 </html>
