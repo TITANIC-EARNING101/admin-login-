@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>TITANIC EARNING PLATFORM OFFICIAL</title>
+    <title>TITANIC EARNING PLATFORM OFFICIAL </title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -126,6 +126,7 @@
         }
         .text-green { color: #10b981; font-weight: 600; }
         .text-red { color: #ef4444; }
+        .text-yellow { color: #fbbf24; }
         .mt-2 { margin-top: 10px; }
         .mb-1 { margin-bottom: 6px; }
         .separator {
@@ -226,13 +227,32 @@
             opacity: 0.5;
             pointer-events: none;
         }
+        .reject-reason-box {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 10px;
+            margin-top: 8px;
+            font-size: 12px;
+            border-left: 3px solid #ef4444;
+        }
+        .screenshot-link {
+            color: #3b82f6;
+            text-decoration: underline;
+            word-break: break-all;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
 
 <div id="loginScreen" class="login-overlay">
     <div class="login-box">
-        <h2 style="margin-bottom: 20px;">TITANIC ACCESS</h2>
+        <h2 style="margin-bottom: 20px;">TITANIC EARNING </h2>
         <input type="password" id="adminPass" class="input" placeholder="Enter Password">
         <button onclick="checkAuth()" style="width:100%">Login</button>
     </div>
@@ -240,7 +260,7 @@
 
 <div id="mainApp" class="container hidden">
     <div class="admin-header">
-        <h2>TITANIC EARNING PLATFORM OFFICIAL</h2>
+        <h2>TITANIC EARNING PLATFORM OFFICIAL </h2>
         <div style="display: flex; gap: 8px;">
             <button class="btn-outline" onclick="refreshAll()">Refresh</button>
             <button class="btn-danger" onclick="logout()">Exit</button>
@@ -287,7 +307,7 @@
         <div id="withdrawalsList">Loading...</div>
     </div>
 
-    <!-- Custom Tools (with delete) -->
+    <!-- Custom Tools -->
     <div class="card">
         <div class="card-title">Custom Tools</div>
         <input id="toolName" class="input" placeholder="Tool Name">
@@ -296,9 +316,9 @@
         <div id="toolsList" class="mt-2"></div>
     </div>
 
-    <!-- Plans: full details + delete -->
+    <!-- Plans Management -->
     <div class="card">
-        <div class="card-title">Manage Plans (Full Details)</div>
+        <div class="card-title">Manage Plans </div>
         <div id="plansList">Loading...</div>
         <div class="separator"></div>
         <div class="card-title" style="margin-top:8px;">Create New Plan</div>
@@ -309,7 +329,7 @@
         <button class="success" onclick="createPlan()">Create Plan</button>
     </div>
 
-    <!-- Promo Codes with delete -->
+    <!-- Promo Codes -->
     <div class="card">
         <div class="card-title">Promo Codes</div>
         <div class="flex-between">
@@ -320,16 +340,25 @@
         <div id="promosList" class="mt-2"></div>
     </div>
 
-    <!-- Pending Approvals & Renewals & Complaints -->
+    <!-- Enhanced Pending Approvals & Renewals & Complaints -->
     <div class="grid-2">
-        <div class="card"><div class="card-title">Pending Plan Approvals</div><div id="pendingPlansList">Loading...</div></div>
-        <div class="card"><div class="card-title">Pending Renewals</div><div id="pendingRenewalsList">Loading...</div></div>
-        <div class="card"><div class="card-title">User Complaints</div><div id="complaintsList">Loading...</div></div>
+        <div class="card">
+            <div class="card-title">Pending Plan Approvals</div>
+            <div id="pendingPlansList">Loading...</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Pending Renewals</div>
+            <div id="pendingRenewalsList">Loading...</div>
+        </div>
+        <div class="card">
+            <div class="card-title">User Complaints</div>
+            <div id="complaintsList">Loading...</div>
+        </div>
     </div>
 
-    <!-- Users Full Details (CEO protected) -->
+    <!-- All Users -->
     <div class="card">
-        <div class="card-title">All Users (Complete Details)</div>
+        <div class="card-title">All Users dashboard </div>
         <div class="search-box"><input type="text" id="searchUser" placeholder="Search by name, email, phone..."></div>
         <div id="usersList">Loading users...</div>
     </div>
@@ -350,6 +379,7 @@
     const db = firebase.database();
     const ADMIN_PASS = "Ta.732419";
     let allUsers = [];
+    let plansCache = {};
 
     function showToast(msg, isErr = false) {
         let t = document.createElement('div');
@@ -387,6 +417,7 @@
     function refreshAll() { loadAll(); showToast("Refreshed"); }
 
     async function loadAll() {
+        await loadPlansForCache();
         loadSettings();
         loadOTP();
         loadWithdrawals();
@@ -397,6 +428,13 @@
         loadPendingRenewals();
         loadComplaints();
         loadUsers();
+    }
+
+    function loadPlansForCache() {
+        return db.ref('plans').once('value', snap => {
+            plansCache = {};
+            snap.forEach(c => { plansCache[c.key] = c.val(); });
+        });
     }
 
     function loadSettings() {
@@ -477,7 +515,7 @@
     window.approveWd = (id, uid, amt) => { if(confirm(`Approve RS ${amt}?`)) db.ref(`withdrawals/${id}`).update({ status: 'Approved' }).then(()=>showToast("Approved")); };
     window.rejectWd = (id, uid, amt) => { if(confirm(`Reject & refund RS ${amt}?`)) { db.ref(`users/${uid}`).transaction(u=>{ if(u) u.balance = (u.balance||0)+amt; return u; }).then(()=> db.ref(`withdrawals/${id}`).update({ status: 'Rejected' })).then(()=>showToast("Refunded")); } };
 
-    // Tools with delete button
+    // Tools
     function loadTools() {
         db.ref('custom_tools').on('value', snap => {
             let html = '';
@@ -502,7 +540,7 @@
     }
     window.deleteTool = (key) => { if(confirm("Delete tool?")) db.ref(`custom_tools/${key}`).remove(); };
 
-    // Plans: full details + delete
+    // Plans full
     function loadPlansFull() {
         db.ref('plans').on('value', snap => {
             let html = '';
@@ -539,7 +577,7 @@
     window.togglePlan = (id, status) => { db.ref(`plans/${id}`).update({ status: status === 'active' ? 'off' : 'active' }); };
     window.deletePlan = (id) => { if(confirm("Delete plan permanently?")) db.ref(`plans/${id}`).remove(); };
 
-    // Promos with delete
+    // Promos
     function loadPromos() {
         db.ref('promos').on('value', snap => {
             let html = '';
@@ -560,26 +598,99 @@
     }
     window.deletePromo = (code) => { if(confirm("Delete promo?")) db.ref(`promos/${code}`).remove(); };
 
-    // Pending plan approvals
+    // Enhanced Pending Plan Approvals (full details + reject with reason)
     function loadPendingPlans() {
-        db.ref('users').orderByChild('plan_status').equalTo('pending').on('value', snap => {
+        db.ref('users').orderByChild('plan_status').equalTo('pending').on('value', async snap => {
             let html = '';
-            snap.forEach(c => {
-                let u = c.val();
-                html += `<div class="request-item">
-                            <div><strong>${escapeHtml(u.name)}</strong> | ${u.payment_num || 'No number'}</div>
-                            <div>Trx: ${u.payment_trx || 'N/A'}</div>
-                            <button class="success small mt-2" onclick="approvePlan('${c.key}')">Approve Plan</button>
-                        </div>`;
-            });
-            document.getElementById('pendingPlansList').innerHTML = html || '<div>No pending approvals</div>';
+            let usersList = [];
+            snap.forEach(c => { usersList.push({ id: c.key, ...c.val() }); });
+            
+            for (let u of usersList) {
+                let planId = u.plan_id;
+                let planDetails = (planId && plansCache[planId]) ? plansCache[planId] : { name: 'Unknown Plan', price: u.plan_price || 'N/A' };
+                let planName = planDetails.name || 'Unknown';
+                let planPrice = planDetails.price || u.plan_price || '?';
+                
+                let screenshotHtml = '';
+                if (u.payment_screenshot && u.payment_screenshot.trim() !== '') {
+                    screenshotHtml = `<div><span class="detail-label">Screenshot</span><div><a href="${escapeHtml(u.payment_screenshot)}" target="_blank" class="screenshot-link">View Proof</a></div></div>`;
+                }
+                
+                html += `
+                    <div class="request-item" id="pendingReq-${u.id}">
+                        <div class="flex-between">
+                            <strong>${escapeHtml(u.name)}</strong>
+                            <span class="badge">Pending Approval</span>
+                        </div>
+                        <div class="info-grid">
+                            <div><span class="detail-label">Email</span><div>${escapeHtml(u.email)}</div></div>
+                            <div><span class="detail-label">Phone</span><div>${u.phone || 'Not provided'}</div></div>
+                            <div><span class="detail-label">Plan</span><div><strong>${escapeHtml(planName)}</strong> (RS ${planPrice})</div></div>
+                            <div><span class="detail-label">Daily Videos</span><div>${planDetails.videos || '?'} ads</div></div>
+                            <div><span class="detail-label">Amount to Pay</span><div class="text-green">RS ${planPrice}</div></div>
+                            <div><span class="detail-label">Payment Number/ID</span><div>${escapeHtml(u.payment_num) || 'N/A'}</div></div>
+                        </div>
+                        <div class="detail-row">
+                            <div><span class="detail-label">Transaction ID</span><div>${escapeHtml(u.payment_trx) || 'N/A'}</div></div>
+                            <div><span class="detail-label">Submitted</span><div>${u.plan_request_time ? new Date(u.plan_request_time).toLocaleString() : 'Unknown'}</div></div>
+                            ${screenshotHtml}
+                        </div>
+                        <div class="separator" style="margin:8px 0"></div>
+                        <div class="mb-1"><span class="detail-label">Reject Reason (if rejecting)</span></div>
+                        <textarea id="rejectReason-${u.id}" class="input" rows="2" placeholder="Enter reason for rejection..." style="margin-bottom:8px"></textarea>
+                        <div class="flex-between">
+                            <button class="success small" onclick="approvePlanFull('${u.id}')">Approve Plan</button>
+                            <button class="danger small" onclick="rejectPlanFull('${u.id}')">Reject Plan</button>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('pendingPlansList').innerHTML = html || '<div>No pending plan approvals</div>';
         });
     }
-    window.approvePlan = (uid) => {
-        db.ref(`users/${uid}`).once('value', snap => {
-            let u = snap.val();
-            db.ref(`users/${uid}`).update({ plan_status: 'active', plan_approved_at: Date.now(), total_plans_bought: (u.total_plans_bought||0)+1 }).then(()=> showToast("Plan approved"));
-        });
+    
+    window.approvePlanFull = (uid) => {
+        if(confirm("Approve this plan? User will get plan activated.")) {
+            db.ref(`users/${uid}`).once('value', snap => {
+                let u = snap.val();
+                let planId = u.plan_id;
+                let plan = plansCache[planId] || { days: 90, ad_reward: 5, videos: 10 };
+                let expiry = Date.now() + (plan.days || 90) * 86400000;
+                db.ref(`users/${uid}`).update({
+                    plan_status: 'active',
+                    plan_approved_at: Date.now(),
+                    plan_expiry: expiry,
+                    total_plans_bought: (u.total_plans_bought||0)+1,
+                    plan_rejection_reason: null,
+                    reject_note: null
+                }).then(() => showToast("Plan approved & activated"));
+            });
+        }
+    };
+    
+    window.rejectPlanFull = (uid) => {
+        let reasonTextarea = document.getElementById(`rejectReason-${uid}`);
+        if (!reasonTextarea) {
+            showToast("Error: could not find reason field", true);
+            return;
+        }
+        let reason = reasonTextarea.value.trim();
+        if (!reason) {
+            showToast("Please write a rejection reason before rejecting", true);
+            return;
+        }
+        if(confirm(`Reject plan request? Reason: ${reason}`)) {
+            db.ref(`users/${uid}`).update({
+                plan_status: 'rejected',
+                plan_rejection_reason: reason,
+                rejected_at: Date.now(),
+                plan_approved_at: null,
+                plan_expiry: null
+            }).then(() => {
+                showToast(`Plan rejected. Reason saved.`);
+                db.ref(`users/${uid}`).update({ custom_message: `Your plan request was rejected. Reason: ${reason}. Please contact support.` });
+            }).catch(e => showToast("Error: "+e, true));
+        }
     };
 
     // Pending renewals
@@ -589,7 +700,7 @@
             snap.forEach(c => {
                 let u = c.val();
                 html += `<div class="request-item">
-                            <div><strong>${escapeHtml(u.name)}</strong> | Renew: ${u.renew_plan_id || '?'}</div>
+                            <div><strong>${escapeHtml(u.name)}</strong> | Renew Plan: ${u.renew_plan_id || '?'}</div>
                             <div>Trx: ${u.renew_payment_trx || 'N/A'}</div>
                             <button class="success small mt-2" onclick="approveRenewal('${c.key}')">Approve Renewal</button>
                         </div>`;
@@ -622,7 +733,7 @@
         db.ref(`complaints/${id}`).update({ status: 'Resolved', admin_reply: reply }).then(()=>showToast("Resolved"));
     };
 
-    // Users complete details with CEO protection
+    // Users with display rejection reason
     function loadUsers() {
         db.ref('users').on('value', snap => {
             let users = [];
@@ -645,6 +756,12 @@
             let expiry = "No Active Plan";
             if (u.plan_expiry && u.plan_expiry > Date.now()) expiry = new Date(u.plan_expiry).toLocaleString();
             let planName = (u.plan_id && u.plan_id !== -1) ? u.plan_id : "None";
+            let rejectionHtml = '';
+            if (u.plan_status === 'rejected' && u.plan_rejection_reason) {
+                rejectionHtml = `<div class="reject-reason-box mt-2">
+                                    <span class="detail-label">Rejection Reason:</span> ${escapeHtml(u.plan_rejection_reason)}
+                                </div>`;
+            }
             html += `<div class="user-card">
                         <div class="flex-between">
                             <div><strong>${escapeHtml(u.name)}</strong> ${isCEO ? '<span class="badge">CEO</span>' : ''}<br><span style="font-size:12px">${escapeHtml(u.email)}</span></div>
@@ -656,10 +773,11 @@
                             <div><span class="detail-label">Phone</span><div>${u.phone || 'Not Bound'}</div></div>
                         </div>
                         <div class="detail-row">
-                            <div><span class="detail-label">Plan</span><div>${planName} (${u.plan_status || 'inactive'})</div></div>
+                            <div><span class="detail-label">Plan Status</span><div style="color:${u.plan_status==='active'?'#10b981':(u.plan_status==='rejected'?'#ef4444':'#fbbf24')}">${u.plan_status || 'inactive'}</div></div>
                             <div><span class="detail-label">Expiry</span><div>${expiry}</div></div>
                             <div><span class="detail-label">Total Plans</span><div>${u.total_plans_bought || 0}</div></div>
                         </div>
+                        ${rejectionHtml}
                         <div class="detail-row">
                             <div><span class="detail-label">Invites</span><div>${u.invites || 0} (Active: ${u.active_invites || 0})</div></div>
                             <div><span class="detail-label">Videos</span><div>${u.daily_videos_watched || 0}</div></div>
@@ -670,14 +788,13 @@
                             <input id="msg-${u.id}" class="input" placeholder="Direct message" value="${escapeHtml(u.custom_message)}" style="flex:1; margin-right:8px">
                             <button class="small" onclick="sendMsg('${u.id}')">Send</button>
                         </div>`;
-            // Block section: hide completely for CEO, otherwise show
             if (!isCEO) {
                 html += `<div class="flex-between mt-2">
                             <input id="blockReason-${u.id}" class="input" placeholder="Block reason" style="width:55%" value="${escapeHtml(u.block_reason)}">
                             ${!u.blocked ? `<button class="danger small" onclick="blockUser('${u.id}')">Block</button>` : `<button class="success small" onclick="unblockUser('${u.id}')">Unblock</button>`}
                         </div>`;
             } else {
-                html += `<div class="mt-2" style="color:#94a3b8; font-size:12px;">🔒 CEO account cannot be blocked</div>`;
+                html += `<div class="mt-2" style="color:#94a3b8; font-size:12px;">CEO account cannot be blocked</div>`;
             }
             html += `</div>`;
         });
@@ -685,25 +802,17 @@
     }
     window.sendMsg = (uid) => { let msg = document.getElementById(`msg-${uid}`).value; db.ref(`users/${uid}`).update({ custom_message: msg }).then(()=>showToast("Message sent")); };
     window.blockUser = (uid) => {
-        // Double-check CEO protection
         let user = allUsers.find(u => u.id === uid);
-        if (user && user.role === 'admin') {
-            showToast("CEO account cannot be blocked", true);
-            return;
-        }
+        if (user && user.role === 'admin') { showToast("CEO cannot be blocked", true); return; }
         let reason = document.getElementById(`blockReason-${uid}`).value;
         if(!reason) return showToast("Reason required", true);
         db.ref(`users/${uid}`).update({ blocked: true, block_reason: reason }).then(()=>showToast("Blocked"));
     };
     window.unblockUser = (uid) => {
         let user = allUsers.find(u => u.id === uid);
-        if (user && user.role === 'admin') {
-            showToast("CEO account cannot be unblocked (or was never blocked)", true);
-            return;
-        }
+        if (user && user.role === 'admin') { showToast("CEO unblock not needed", true); return; }
         db.ref(`users/${uid}`).update({ blocked: false, block_reason: '' }).then(()=>showToast("Unblocked"));
     };
-
     document.getElementById('searchUser')?.addEventListener('input', () => renderUsers());
 </script>
 </body>
