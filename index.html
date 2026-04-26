@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>TITANIC EARNING PLATFORM OFFICIAL </title>
+    <title>TITANIC EARNING PLATFORM OFFICIAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -252,7 +252,7 @@
 
 <div id="loginScreen" class="login-overlay">
     <div class="login-box">
-        <h2 style="margin-bottom: 20px;">TITANIC EARNING </h2>
+        <h2 style="margin-bottom: 20px;">TITANIC EARNING</h2>
         <input type="password" id="adminPass" class="input" placeholder="Enter Password">
         <button onclick="checkAuth()" style="width:100%">Login</button>
     </div>
@@ -260,7 +260,7 @@
 
 <div id="mainApp" class="container hidden">
     <div class="admin-header">
-        <h2>TITANIC EARNING PLATFORM OFFICIAL </h2>
+        <h2>TITANIC EARNING PLATFORM OFFICIAL</h2>
         <div style="display: flex; gap: 8px;">
             <button class="btn-outline" onclick="refreshAll()">Refresh</button>
             <button class="btn-danger" onclick="logout()">Exit</button>
@@ -301,7 +301,7 @@
         <div id="otpList">Loading...</div>
     </div>
 
-    <!-- Pending Withdrawals -->
+    <!-- Pending Withdrawals with Reject Reason -->
     <div class="card">
         <div class="card-title">Pending Withdrawals</div>
         <div id="withdrawalsList">Loading...</div>
@@ -318,7 +318,7 @@
 
     <!-- Plans Management -->
     <div class="card">
-        <div class="card-title">Manage Plans </div>
+        <div class="card-title">Manage Plans</div>
         <div id="plansList">Loading...</div>
         <div class="separator"></div>
         <div class="card-title" style="margin-top:8px;">Create New Plan</div>
@@ -358,7 +358,7 @@
 
     <!-- All Users -->
     <div class="card">
-        <div class="card-title">All Users dashboard </div>
+        <div class="card-title">All Users dashboard</div>
         <div class="search-box"><input type="text" id="searchUser" placeholder="Search by name, email, phone..."></div>
         <div id="usersList">Loading users...</div>
     </div>
@@ -490,7 +490,7 @@
         });
     };
 
-    // Withdrawals
+    // Withdrawals with reject reason
     function loadWithdrawals() {
         db.ref('withdrawals').orderByChild('status').equalTo('Pending').on('value', snap => {
             let html = '', totalAmt = 0;
@@ -498,12 +498,14 @@
             else snap.forEach(c => {
                 let w = c.val();
                 totalAmt += w.amount;
-                html += `<div class="request-item">
+                html += `<div class="request-item" id="wdItem-${c.key}">
                             <div class="flex-between"><strong>${escapeHtml(w.name)}</strong><span class="text-green">RS ${w.amount}</span></div>
                             <div>${w.method}: ${w.acc}</div>
+                            <div class="mt-2 mb-1"><span class="detail-label">Rejection Reason (if rejecting)</span></div>
+                            <textarea id="wdRejectReason-${c.key}" class="input" rows="2" placeholder="Enter reason for withdrawal rejection..." style="margin-bottom:8px"></textarea>
                             <div class="flex-between mt-2">
                                 <button class="success small" onclick="approveWd('${c.key}','${w.uid}',${w.amount})">Approve</button>
-                                <button class="danger small" onclick="rejectWd('${c.key}','${w.uid}',${w.amount})">Reject & Refund</button>
+                                <button class="danger small" onclick="rejectWdWithReason('${c.key}','${w.uid}',${w.amount})">Reject & Refund</button>
                             </div>
                         </div>`;
             });
@@ -512,8 +514,39 @@
             document.getElementById('statPendingAmt').innerHTML = `RS ${totalAmt.toLocaleString()}`;
         });
     }
-    window.approveWd = (id, uid, amt) => { if(confirm(`Approve RS ${amt}?`)) db.ref(`withdrawals/${id}`).update({ status: 'Approved' }).then(()=>showToast("Approved")); };
-    window.rejectWd = (id, uid, amt) => { if(confirm(`Reject & refund RS ${amt}?`)) { db.ref(`users/${uid}`).transaction(u=>{ if(u) u.balance = (u.balance||0)+amt; return u; }).then(()=> db.ref(`withdrawals/${id}`).update({ status: 'Rejected' })).then(()=>showToast("Refunded")); } };
+    
+    window.approveWd = (id, uid, amt) => { 
+        if(confirm(`Approve RS ${amt}?`)) 
+            db.ref(`withdrawals/${id}`).update({ status: 'Approved' }).then(()=>showToast("Approved")); 
+    };
+    
+    // Reject withdrawal with reason
+    window.rejectWdWithReason = (id, uid, amt) => {
+        let reasonTextarea = document.getElementById(`wdRejectReason-${id}`);
+        if (!reasonTextarea) {
+            showToast("Error finding reason field", true);
+            return;
+        }
+        let reason = reasonTextarea.value.trim();
+        if (!reason) {
+            showToast("Please write a rejection reason before rejecting", true);
+            return;
+        }
+        if(confirm(`Reject & refund RS ${amt}? Reason: ${reason}`)) {
+            db.ref(`users/${uid}`).transaction(u=>{ if(u) u.balance = (u.balance||0)+amt; return u; }).then(()=> {
+                db.ref(`withdrawals/${id}`).update({ 
+                    status: 'Rejected', 
+                    reject_reason: reason,
+                    rejected_at: Date.now()
+                }).then(() => {
+                    showToast("Withdrawal rejected, amount refunded");
+                    db.ref(`users/${uid}`).update({ 
+                        custom_message: `Your withdrawal request of RS ${amt} was rejected. Reason: ${reason}. Please contact support.` 
+                    });
+                });
+            }).catch(e => showToast("Error: "+e, true));
+        }
+    };
 
     // Tools
     function loadTools() {
@@ -598,7 +631,7 @@
     }
     window.deletePromo = (code) => { if(confirm("Delete promo?")) db.ref(`promos/${code}`).remove(); };
 
-    // Enhanced Pending Plan Approvals (full details + reject with reason)
+    // Pending Plan Approvals - MODIFIED: Reject does NOT block user, just sets plan_status to 'rejected'
     function loadPendingPlans() {
         db.ref('users').orderByChild('plan_status').equalTo('pending').on('value', async snap => {
             let html = '';
@@ -662,12 +695,16 @@
                     plan_expiry: expiry,
                     total_plans_bought: (u.total_plans_bought||0)+1,
                     plan_rejection_reason: null,
-                    reject_note: null
+                    reject_note: null,
+                    // Ensure user is not blocked on approval
+                    blocked: false,
+                    block_reason: ''
                 }).then(() => showToast("Plan approved & activated"));
             });
         }
     };
     
+    // MODIFIED: Reject plan - does NOT block user, allows them to buy a new plan again
     window.rejectPlanFull = (uid) => {
         let reasonTextarea = document.getElementById(`rejectReason-${uid}`);
         if (!reasonTextarea) {
@@ -679,16 +716,21 @@
             showToast("Please write a rejection reason before rejecting", true);
             return;
         }
-        if(confirm(`Reject plan request? Reason: ${reason}`)) {
+        if(confirm(`Reject plan request? Reason: ${reason}\n\nUser will NOT be blocked. They can purchase a new plan.`)) {
             db.ref(`users/${uid}`).update({
                 plan_status: 'rejected',
                 plan_rejection_reason: reason,
                 rejected_at: Date.now(),
                 plan_approved_at: null,
-                plan_expiry: null
+                plan_expiry: null,
+                //   IMPORTANT: Do NOT block the user - they can rebuy plan
+                blocked: false,   // Ensure user remains unblocked
+                block_reason: ''
             }).then(() => {
-                showToast(`Plan rejected. Reason saved.`);
-                db.ref(`users/${uid}`).update({ custom_message: `Your plan request was rejected. Reason: ${reason}. Please contact support.` });
+                showToast(`Plan rejected. User can purchase a new plan.`);
+                db.ref(`users/${uid}`).update({ 
+                    custom_message: `Your plan request was rejected. Reason: ${reason}. You can purchase a new plan from the app.` 
+                });
             }).catch(e => showToast("Error: "+e, true));
         }
     };
