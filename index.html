@@ -834,6 +834,9 @@
                 html += `<div class="flex-between mt-2">
                             <input id="blockReason-${u.id}" class="input" placeholder="Block reason" style="width:55%" value="${escapeHtml(u.block_reason)}">
                             ${!u.blocked ? `<button class="danger small" onclick="blockUser('${u.id}')">Block</button>` : `<button class="success small" onclick="unblockUser('${u.id}')">Unblock</button>`}
+                        </div>
+                        <div style="text-align: right; margin-top: 8px;">
+                            <button class="danger small" style="background:#dc2626;" onclick="deleteUserPermanently('${u.id}', '${escapeHtml(u.email)}', '${escapeHtml(u.phone)}')">Delete Permanently</button>
                         </div>`;
             } else {
                 html += `<div class="mt-2" style="color:#94a3b8; font-size:12px;">CEO account cannot be blocked</div>`;
@@ -855,6 +858,25 @@
         if (user && user.role === 'admin') { showToast("CEO unblock not needed", true); return; }
         db.ref(`users/${uid}`).update({ blocked: false, block_reason: '' }).then(()=>showToast("Unblocked"));
     };
+
+    // Permanently Delete Account and Ban email/phone
+    window.deleteUserPermanently = (uid, email, phone) => {
+        if (confirm(`Kya aap waqai is account ko hamesha ke liye delete karna chahte hain?\n\nEmail: ${email}\nPhone: ${phone}\n\nIs se user ka mukammal data delete ho jayega aur woh dubara register ya login nahi kar sakega.`)) {
+            // 1. Delete user from 'users' node
+            db.ref(`users/${uid}`).remove().then(() => {
+                // 2. Add to banned list
+                let banData = {
+                    email: email ? email.toLowerCase() : '',
+                    phone: phone || '',
+                    banned_at: Date.now()
+                };
+                db.ref('banned_users').push(banData).then(() => {
+                    showToast("Account deleted and banned permanently");
+                });
+            }).catch(e => showToast("Error deleting: " + e, true));
+        }
+    };
+
     document.getElementById('searchUser')?.addEventListener('input', () => renderUsers());
 </script>
 </body>
